@@ -22,10 +22,7 @@ const REDIRECT_URI = 'https://spotifyprofile.netlify.app/callback';
 const SCOPES = [
   'user-read-private',
   'user-read-email',
-  'user-top-read',
-  'user-read-recently-played',
-  'playlist-read-private',
-  'playlist-read-collaborative'
+  'user-top-read'
 ];
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -35,7 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isAuthenticated = !!user;
 
   const login = () => {
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&show_dialog=true`;
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}`;
     window.location.href = authUrl;
   };
 

@@ -10,6 +10,13 @@ const Callback: React.FC = () => {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
+    const error = params.get('error');
+
+    if (error) {
+      console.error('Spotify auth error:', error);
+      navigate('/');
+      return;
+    }
 
     if (accessToken) {
       setAccessToken(accessToken);
