@@ -2,6 +2,23 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { SpotifyUser } from '../types/spotify';
 import { spotifyService } from '../services/spotifyService';
 
+// Función para generar PKCE challenge
+function generateCodeVerifier(length: number) {
+  let text = '';
+  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
+
+function generateCodeChallenge(codeVerifier: string) {
+  return btoa(codeVerifier)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 interface AuthContextType {
   user: SpotifyUser | null;
   isAuthenticated: boolean;
@@ -32,7 +49,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isAuthenticated = !!user;
 
   const login = () => {
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}`;
+    const codeVerifier = generateCodeVerifier(128);
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    
+    // Guardar el code_verifier para usarlo después
+    localStorage.setItem('code_verifier', codeVerifier);
+    
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     window.location.href = authUrl;
   };
 

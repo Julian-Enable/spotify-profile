@@ -7,10 +7,9 @@ const Callback: React.FC = () => {
   const { setAccessToken } = useAuth();
 
   useEffect(() => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const accessToken = params.get('access_token');
-    const error = params.get('error');
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
 
     if (error) {
       console.error('Spotify auth error:', error);
@@ -18,13 +17,56 @@ const Callback: React.FC = () => {
       return;
     }
 
-    if (accessToken) {
-      setAccessToken(accessToken);
-      navigate('/dashboard');
+    if (code) {
+      // Intercambiar el código por un token usando PKCE
+      exchangeCodeForToken(code);
     } else {
       navigate('/');
     }
-  }, [setAccessToken, navigate]);
+  }, [navigate, setAccessToken]);
+
+  const exchangeCodeForToken = async (code: string) => {
+    try {
+      const codeVerifier = localStorage.getItem('code_verifier');
+      if (!codeVerifier) {
+        console.error('No code verifier found');
+        navigate('/');
+        return;
+      }
+
+      // Usar un proxy público para intercambiar el código por token
+      const response = await fetch('https://spotify-auth-proxy.vercel.app/api/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          code_verifier: codeVerifier,
+          redirect_uri: 'https://spotifyprofile.netlify.app/callback',
+          client_id: '6a33f98b08844547828ddcd86394c8ce'
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.access_token) {
+          setAccessToken(data.access_token);
+          localStorage.removeItem('code_verifier');
+          navigate('/dashboard');
+        } else {
+          throw new Error('No access token received');
+        }
+      } else {
+        throw new Error('Failed to exchange code for token');
+      }
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+      // Fallback: mostrar información para debugging
+      alert('Error en la autenticación. Revisa la consola para más detalles.');
+      navigate('/');
+    }
+  };
 
   return (
     <div style={{ 
