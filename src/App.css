@@ -1,0 +1,77 @@
+/* Estilos personalizados para Spotify Profile */
+
+/* Variables de colores de Spotify */
+:root {
+  --spotify-green: #1DB954;
+  --spotify-black: #191414;
+  --spotify-dark: #121212;
+  --spotify-light: #282828;
+  --spotify-gray: #B3B3B3;
+}
+
+/* Estilos base */
+body {
+  background-color: var(--spotify-dark) !important;
+  color: white !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+/* Clases de utilidad para colores de Spotify */
+.bg-spotify-dark {
+  background-color: var(--spotify-dark) !important;
+}
+
+.bg-spotify-black {
+  background-color: var(--spotify-black) !important;
+}
+
+.bg-spotify-light {
+  background-color: var(--spotify-light) !important;
+}
+
+.bg-spotify-green {
+  background-color: var(--spotify-green) !important;
+}
+
+.text-spotify-gray {
+  color: var(--spotify-gray) !important;
+}
+
+.text-spotify-green {
+  color: var(--spotify-green) !important;
+}
+
+/* Estilos para el botón de Spotify */
+.spotify-button {
+  background-color: var(--spotify-green) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s !important;
+}
+
+.spotify-button:hover {
+  background-color: #1ed760 !important;
+}
+
+/* Estilos para las tarjetas */
+.spotify-card {
+  background-color: var(--spotify-light) !important;
+  border-radius: 8px !important;
+  padding: 20px !important;
+  margin-bottom: 16px !important;
+}
+
+/* Estilos para el texto */
+.spotify-text {
+  color: white !important;
+}
+
+.spotify-text-secondary {
+  color: var(--spotify-gray) !important;
+}

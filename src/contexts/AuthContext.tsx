@@ -1,0 +1,91 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { SpotifyUser } from '../types/spotify';
+import { spotifyService } from '../services/spotifyService';
+
+interface AuthContextType {
+  user: SpotifyUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: () => void;
+  logout: () => void;
+  setAccessToken: (token: string) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const CLIENT_ID = '6a33f98b08844547828ddcd86394c8ce'; // Necesitarás crear una app en Spotify Developer Dashboard
+// Para desarrollo local
+// const REDIRECT_URI = 'https://localhost:3000/callback';
+
+// Para Netlify (actualizar con tu URL real)
+const REDIRECT_URI = 'https://TU-URL-REAL.netlify.app/callback';
+const SCOPES = [
+  'user-read-private',
+  'user-read-email',
+  'user-top-read',
+  'user-read-recently-played',
+  'playlist-read-private',
+  'playlist-read-collaborative'
+];
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<SpotifyUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isAuthenticated = !!user;
+
+  const login = () => {
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}`;
+    window.location.href = authUrl;
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('spotify_access_token');
+    spotifyService.setAccessToken('');
+  };
+
+  const setAccessToken = async (token: string) => {
+    localStorage.setItem('spotify_access_token', token);
+    spotifyService.setAccessToken(token);
+    
+    try {
+      const userData = await spotifyService.getCurrentUser();
+      setUser(userData);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('spotify_access_token');
+    if (token) {
+      setAccessToken(token);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const value: AuthContextType = {
+    user,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
+    setAccessToken,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
