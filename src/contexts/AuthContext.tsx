@@ -17,8 +17,8 @@ const CLIENT_ID = '6a33f98b08844547828ddcd86394c8ce'; // Necesitarás crear una 
 // Para desarrollo local
 // const REDIRECT_URI = 'https://localhost:3000/callback';
 
-// Para Netlify (actualizar con tu URL real)
-const REDIRECT_URI = 'https://TU-URL-REAL.netlify.app/callback';
+// Para Netlify (URL real)
+const REDIRECT_URI = 'https://spotifyprofile.netlify.app/callback';
 const SCOPES = [
   'user-read-private',
   'user-read-email',
