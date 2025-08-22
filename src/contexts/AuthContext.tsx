@@ -2,23 +2,6 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { SpotifyUser } from '../types/spotify';
 import { spotifyService } from '../services/spotifyService';
 
-// Función para generar PKCE challenge
-function generateCodeVerifier(length: number) {
-  let text = '';
-  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-function generateCodeChallenge(codeVerifier: string) {
-  return btoa(codeVerifier)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
-
 interface AuthContextType {
   user: SpotifyUser | null;
   isAuthenticated: boolean;
@@ -30,11 +13,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const CLIENT_ID = '6a33f98b08844547828ddcd86394c8ce'; // Necesitarás crear una app en Spotify Developer Dashboard
-// Para desarrollo local
-// const REDIRECT_URI = 'https://localhost:3000/callback';
-
-// Para Netlify (URL real)
+const CLIENT_ID = '6a33f98b08844547828ddcd86394c8ce';
 const REDIRECT_URI = 'https://spotifyprofile.netlify.app/callback';
 const SCOPES = [
   'user-read-private',
@@ -49,13 +28,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const isAuthenticated = !!user;
 
   const login = () => {
-    const codeVerifier = generateCodeVerifier(128);
-    const codeChallenge = generateCodeChallenge(codeVerifier);
-    
-    // Guardar el code_verifier para usarlo después
-    localStorage.setItem('code_verifier', codeVerifier);
-    
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
+    // Usar Implicit Flow que funciona completamente en el frontend
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&show_dialog=true`;
     window.location.href = authUrl;
   };
 
