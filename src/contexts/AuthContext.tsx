@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { SpotifyUser } from '../types/spotify';
 import { spotifyService } from '../services/spotifyService';
 
@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     spotifyService.setAccessToken('');
   };
 
-  const setAccessToken = async (token: string) => {
+  const setAccessToken = useCallback(async (token: string) => {
     localStorage.setItem('spotify_access_token', token);
     spotifyService.setAccessToken(token);
     
@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Error fetching user data:', error);
       logout();
     }
-  };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('spotify_access_token');
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setAccessToken(token);
     }
     setIsLoading(false);
-  }, []);
+  }, [setAccessToken]);
 
   const value: AuthContextType = {
     user,
