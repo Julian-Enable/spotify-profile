@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -6,26 +6,7 @@ const Callback: React.FC = () => {
   const navigate = useNavigate();
   const { setAccessToken } = useAuth();
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const error = urlParams.get('error');
-
-    if (error) {
-      console.error('Spotify auth error:', error);
-      navigate('/');
-      return;
-    }
-
-    if (code) {
-      // Intercambiar el código por un token usando PKCE
-      exchangeCodeForToken(code);
-    } else {
-      navigate('/');
-    }
-  }, [navigate, setAccessToken]);
-
-  const exchangeCodeForToken = async (code: string) => {
+  const exchangeCodeForToken = useCallback(async (code: string) => {
     try {
       const codeVerifier = localStorage.getItem('code_verifier');
       if (!codeVerifier) {
@@ -66,7 +47,26 @@ const Callback: React.FC = () => {
       alert('Error en la autenticación. Revisa la consola para más detalles.');
       navigate('/');
     }
-  };
+  }, [navigate, setAccessToken]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+
+    if (error) {
+      console.error('Spotify auth error:', error);
+      navigate('/');
+      return;
+    }
+
+    if (code) {
+      // Intercambiar el código por un token usando PKCE
+      exchangeCodeForToken(code);
+    } else {
+      navigate('/');
+    }
+  }, [navigate, setAccessToken, exchangeCodeForToken]);
 
   return (
     <div style={{ 
