@@ -47,13 +47,40 @@ class SpotifyService {
   }
 
   async getRecommendations(seedArtists: string[] = [], seedTracks: string[] = [], limit: number = 20): Promise<SpotifyRecommendations> {
+    // Limitar a máximo 5 seeds totales (Spotify API limit)
+    const maxSeeds = 5;
+    const totalSeeds = seedArtists.length + seedTracks.length;
+    
+    let finalSeedArtists = seedArtists;
+    let finalSeedTracks = seedTracks;
+    
+    if (totalSeeds > maxSeeds) {
+      // Priorizar artistas si hay demasiados seeds
+      if (seedArtists.length >= maxSeeds) {
+        finalSeedArtists = seedArtists.slice(0, maxSeeds);
+        finalSeedTracks = [];
+      } else {
+        finalSeedArtists = seedArtists;
+        finalSeedTracks = seedTracks.slice(0, maxSeeds - seedArtists.length);
+      }
+    }
+    
+    const params: any = {
+      limit,
+    };
+    
+    // Solo agregar parámetros si hay seeds
+    if (finalSeedArtists.length > 0) {
+      params.seed_artists = finalSeedArtists.join(',');
+    }
+    
+    if (finalSeedTracks.length > 0) {
+      params.seed_tracks = finalSeedTracks.join(',');
+    }
+    
     const response = await axios.get(`${SPOTIFY_API_BASE}/recommendations`, {
       headers: this.getHeaders(),
-      params: {
-        seed_artists: seedArtists.join(','),
-        seed_tracks: seedTracks.join(','),
-        limit,
-      },
+      params,
     });
     return response.data;
   }
