@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { SpotifyTrack } from '../types/spotify';
 import { spotifyService } from '../services/spotifyService';
 
-interface TopTracksProps {
-  tracks: SpotifyTrack[];
-}
-
-const TopTracks: React.FC<TopTracksProps> = ({ tracks: initialTracks }) => {
-  const [tracks, setTracks] = useState<SpotifyTrack[]>(initialTracks);
+const TopTracks: React.FC = () => {
+  const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
   const [timeRange, setTimeRange] = useState<'short_term' | 'medium_term' | 'long_term'>('medium_term');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const timeRangeLabels = {
     short_term: 'Último mes',
@@ -33,42 +29,72 @@ const TopTracks: React.FC<TopTracksProps> = ({ tracks: initialTracks }) => {
     fetchTracks();
   }, [timeRange]);
 
-  const formatDuration = (durationMs: number) => {
-    const minutes = Math.floor(durationMs / 60000);
-    const seconds = Math.floor((durationMs % 60000) / 1000);
+  const formatDuration = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const getPopularityColor = (popularity: number) => {
-    if (popularity >= 80) return 'text-green-400';
-    if (popularity >= 60) return 'text-yellow-400';
-    if (popularity >= 40) return 'text-orange-400';
-    return 'text-red-400';
+    if (popularity >= 80) return '#4ade80'; // green-400
+    if (popularity >= 60) return '#facc15'; // yellow-400
+    if (popularity >= 40) return '#fb923c'; // orange-400
+    return '#f87171'; // red-400
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '30px',
+        flexWrap: 'wrap',
+        gap: '20px'
+      }}>
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">
+          <h2 style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            margin: '0 0 8px 0'
+          }}>
             Tus Canciones Favoritas
           </h2>
-          <p className="text-spotify-gray">
+          <p style={{ color: '#B3B3B3', margin: 0 }}>
             Descubre qué canciones has estado escuchando más
           </p>
         </div>
         
-        <div className="flex space-x-2">
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {(['short_term', 'medium_term', 'long_term'] as const).map((range) => (
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition duration-200 ${
-                timeRange === range
-                  ? 'bg-spotify-green text-white'
-                  : 'bg-spotify-light text-spotify-gray hover:text-white'
-              }`}
+              style={{
+                backgroundColor: timeRange === range ? '#1DB954' : '#282828',
+                color: timeRange === range ? '#FFFFFF' : '#B3B3B3',
+                border: 'none',
+                padding: '10px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseOver={(e) => {
+                if (timeRange !== range) {
+                  e.currentTarget.style.backgroundColor = '#404040';
+                  e.currentTarget.style.color = '#FFFFFF';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (timeRange !== range) {
+                  e.currentTarget.style.backgroundColor = '#282828';
+                  e.currentTarget.style.color = '#B3B3B3';
+                }
+              }}
             >
               {timeRangeLabels[range]}
             </button>
@@ -78,92 +104,175 @@ const TopTracks: React.FC<TopTracksProps> = ({ tracks: initialTracks }) => {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spotify-green mx-auto mb-4"></div>
-          <p className="text-spotify-gray">Cargando canciones...</p>
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '2px solid #1DB954',
+            borderTop: '2px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px auto'
+          }}></div>
+          <p style={{ color: '#B3B3B3' }}>Cargando canciones...</p>
         </div>
       )}
 
-      {/* Tracks list */}
+      {/* Tracks grid */}
       {!isLoading && (
-        <div className="space-y-4">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '24px'
+        }}>
           {tracks.map((track, index) => (
             <div
               key={track.id}
-              className="bg-spotify-light rounded-lg p-4 hover:bg-gray-700 transition duration-200 group"
+              style={{
+                backgroundColor: '#282828',
+                borderRadius: '12px',
+                padding: '20px',
+                border: '1px solid #404040',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#404040';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#282828';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
-              <div className="flex items-center space-x-4">
-                {/* Position */}
-                <div className="flex-shrink-0 w-8 text-center">
-                  <span className="text-2xl font-bold text-spotify-gray group-hover:text-spotify-green transition duration-200">
-                    {index + 1}
-                  </span>
+              <div style={{ position: 'relative', marginBottom: '16px' }}>
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  left: '8px',
+                  backgroundColor: '#1DB954',
+                  color: '#FFFFFF',
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  zIndex: 1
+                }}>
+                  #{index + 1}
                 </div>
-
-                {/* Album cover */}
-                <div className="flex-shrink-0">
-                  {track.album.images && track.album.images[0] ? (
-                    <img
-                      src={track.album.images[0].url}
-                      alt={track.album.name}
-                      className="w-16 h-16 rounded-lg object-cover group-hover:scale-105 transition duration-200"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-spotify-gray rounded-lg flex items-center justify-center">
-                      <svg className="h-8 w-8 text-spotify-dark" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-
-                {/* Track info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-white group-hover:text-spotify-green transition duration-200 truncate">
-                    {track.name}
-                  </h3>
-                  <p className="text-spotify-gray text-sm truncate">
-                    {track.artists.map(artist => artist.name).join(', ')}
-                  </p>
-                  <p className="text-spotify-gray text-xs truncate">
-                    {track.album.name}
-                  </p>
-                </div>
-
-                {/* Popularity */}
-                <div className="flex-shrink-0 text-right">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <span className="text-spotify-gray text-xs">Popularidad:</span>
-                    <span className={`text-xs font-medium ${getPopularityColor(track.popularity)}`}>
+                {track.album.images && track.album.images[0] ? (
+                  <img
+                    src={track.album.images[0].url}
+                    alt={track.name}
+                    style={{
+                      width: '100%',
+                      height: '200px',
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    backgroundColor: '#404040',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '48px'
+                  }}>
+                    🎵
+                  </div>
+                )}
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  color: '#FFFFFF',
+                  margin: 0
+                }}>
+                  {track.name}
+                </h3>
+                
+                <p style={{
+                  fontSize: '14px',
+                  color: '#B3B3B3',
+                  margin: 0
+                }}>
+                  {track.artists.map(artist => artist.name).join(', ')}
+                </p>
+                
+                <p style={{
+                  fontSize: '12px',
+                  color: '#808080',
+                  margin: 0
+                }}>
+                  {track.album.name}
+                </p>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#B3B3B3', fontSize: '14px' }}>Popularidad:</span>
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      color: getPopularityColor(track.popularity)
+                    }}>
                       {track.popularity}%
                     </span>
                   </div>
-                  <div className="w-20 bg-spotify-dark rounded-full h-1">
+                  
+                  <div style={{
+                    width: '60px',
+                    backgroundColor: '#000000',
+                    borderRadius: '10px',
+                    height: '8px'
+                  }}>
                     <div
-                      className="bg-spotify-green h-1 rounded-full transition-all duration-300"
-                      style={{ width: `${track.popularity}%` }}
+                      style={{
+                        backgroundColor: '#1DB954',
+                        height: '8px',
+                        borderRadius: '10px',
+                        width: `${track.popularity}%`,
+                        transition: 'width 0.3s ease'
+                      }}
                     ></div>
                   </div>
                 </div>
-
-                {/* Duration */}
-                <div className="flex-shrink-0 text-right">
-                  <span className="text-spotify-gray text-sm">
-                    {formatDuration(track.duration_ms)}
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#B3B3B3', fontSize: '14px' }}>
+                    Duración: {formatDuration(track.duration_ms)}
                   </span>
-                </div>
-
-                {/* Spotify link */}
-                <div className="flex-shrink-0">
+                  
                   <a
                     href={track.external_urls.spotify}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-spotify-green hover:text-green-400 transition duration-200"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      color: '#1DB954',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      textDecoration: 'none',
+                      transition: 'color 0.3s ease'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.color = '#1ed760';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.color = '#1DB954';
+                    }}
                   >
-                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                    </svg>
+                    <span style={{ fontSize: '16px' }}>🎵</span>
+                    <span>Escuchar</span>
                   </a>
                 </div>
               </div>
@@ -174,16 +283,28 @@ const TopTracks: React.FC<TopTracksProps> = ({ tracks: initialTracks }) => {
 
       {/* Empty state */}
       {!isLoading && tracks.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎵</div>
-          <h3 className="text-xl font-semibold text-white mb-2">
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎵</div>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            margin: '0 0 8px 0'
+          }}>
             No hay canciones disponibles
           </h3>
-          <p className="text-spotify-gray">
+          <p style={{ color: '#B3B3B3' }}>
             Intenta cambiar el período de tiempo o escucha más música para ver tus canciones favoritas
           </p>
         </div>
       )}
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
