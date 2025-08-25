@@ -13,8 +13,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const CLIENT_ID = '6a33f98b08844547828ddcd86394c8ce';
-const REDIRECT_URI = 'https://spotifyprofile.netlify.app/callback';
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID || '6a33f98b08844547828ddcd86394c8ce';
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000/callback';
 const SCOPES = [
   'user-read-private',
   'user-read-email',

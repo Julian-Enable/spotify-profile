@@ -6,6 +6,7 @@ import TopArtists from './TopArtists';
 import TopTracks from './TopTracks';
 import Recommendations from './Recommendations';
 import UserProfile from './UserProfile';
+import { UserIcon, MicrophoneIcon, MusicalNoteIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -35,10 +36,10 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const tabs = [
-    { id: 'profile', name: 'Mi Perfil', icon: '👤' },
-    { id: 'artists', name: 'Artistas Favoritos', icon: '🎤' },
-    { id: 'tracks', name: 'Canciones Favoritas', icon: '🎵' },
-    { id: 'recommendations', name: 'Recomendaciones', icon: '🎧' },
+    { id: 'profile', name: 'Mi Perfil', icon: UserIcon },
+    { id: 'artists', name: 'Artistas Favoritos', icon: MicrophoneIcon },
+    { id: 'tracks', name: 'Canciones Favoritas', icon: MusicalNoteIcon },
+    { id: 'recommendations', name: 'Recomendaciones', icon: SpeakerWaveIcon },
   ];
 
   if (isLoading) {
@@ -95,20 +96,23 @@ const Dashboard: React.FC = () => {
       <nav className="bg-spotify-black border-b border-spotify-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition duration-200 ${
-                  activeTab === tab.id
-                    ? 'border-spotify-green text-spotify-green'
-                    : 'border-transparent text-spotify-gray hover:text-white hover:border-gray-300'
-                }`}
-              >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.name}
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition duration-200 ${
+                    activeTab === tab.id
+                      ? 'border-spotify-green text-spotify-green'
+                      : 'border-transparent text-spotify-gray hover:text-white hover:border-gray-300'
+                  }`}
+                >
+                  <IconComponent className="inline-block w-5 h-5 mr-2" />
+                  {tab.name}
+                </button>
+              );
+            })}
           </div>
         </div>
       </nav>
