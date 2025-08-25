@@ -1,10 +1,54 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Callback: React.FC = () => {
   const navigate = useNavigate();
   const { setAccessToken } = useAuth();
+
+  const exchangeCodeForToken = useCallback(async (code: string) => {
+    try {
+      const codeVerifier = localStorage.getItem('code_verifier');
+      if (!codeVerifier) {
+        console.error('No code verifier found');
+        navigate('/');
+        return;
+      }
+
+      // Usar nuestra función serverless de Netlify
+      const response = await fetch('/.netlify/functions/spotify-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          code,
+          code_verifier: codeVerifier,
+          redirect_uri: 'https://spotifyprofile.netlify.app/callback',
+          client_id: '6a33f98b08844547828ddcd86394c8ce'
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.access_token) {
+          setAccessToken(data.access_token);
+          localStorage.removeItem('code_verifier');
+          navigate('/dashboard');
+        } else {
+          throw new Error('No access token received');
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error(`Failed to exchange code for token: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error exchanging code for token:', error);
+      alert('Error en la autenticación. Revisa la consola para más detalles.');
+      navigate('/');
+    }
+  }, [navigate, setAccessToken]);
 
   useEffect(() => {
     // Verificar si es Authorization Code Flow (code en query params)
@@ -20,38 +64,15 @@ const Callback: React.FC = () => {
     }
 
     if (code) {
-      // Si tenemos un código pero no podemos intercambiarlo, redirigir a Implicit Flow
-      console.log('Authorization Code recibido, pero redirigiendo a Implicit Flow para evitar problemas de proxy');
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=6a33f98b08844547828ddcd86394c8ce&response_type=token&redirect_uri=${encodeURIComponent('https://spotifyprofile.netlify.app/callback')}&scope=${encodeURIComponent('user-read-private user-read-email user-top-read')}&show_dialog=true`;
-      window.location.href = authUrl;
+      // Authorization Code Flow
+      exchangeCodeForToken(code);
       return;
     }
 
-    // Verificar si es Implicit Flow (token en hash)
-    const hash = window.location.hash.substring(1);
-    const hashParams = new URLSearchParams(hash);
-    const accessToken = hashParams.get('access_token');
-    const hashError = hashParams.get('error');
-
-    if (hashError) {
-      console.error('Spotify auth error:', hashError);
-      alert('Error en la autenticación: ' + hashError);
-      navigate('/');
-      return;
-    }
-
-    if (accessToken) {
-      // Implicit Flow - token directo
-      console.log('Token recibido via Implicit Flow');
-      setAccessToken(accessToken);
-      navigate('/dashboard');
-      return;
-    }
-
-    // Si no hay ni code ni token, redirigir al inicio
-    console.error('No authorization code or access token found');
+    // Si no hay código, redirigir al inicio
+    console.error('No authorization code found');
     navigate('/');
-  }, [navigate, setAccessToken]);
+  }, [navigate, setAccessToken, exchangeCodeForToken]);
 
   return (
     <div style={{ 
