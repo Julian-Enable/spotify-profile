@@ -21,51 +21,16 @@ const SCOPES = [
   'user-top-read'
 ];
 
-// Función para generar PKCE challenge
-function generateCodeVerifier(length: number) {
-  let text = '';
-  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  for (let i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
-function generateCodeChallenge(codeVerifier: string) {
-  // Usar SHA256 para generar el challenge
-  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))
-    .then(hash => {
-      const uint8Array = new Uint8Array(hash);
-      const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
-      return btoa(binaryString)
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
-    });
-}
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<SpotifyUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
 
-  const login = async () => {
-    try {
-      const codeVerifier = generateCodeVerifier(128);
-      const codeChallenge = await generateCodeChallenge(codeVerifier);
-      
-      // Guardar el code_verifier para usarlo después
-      localStorage.setItem('code_verifier', codeVerifier);
-      
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&code_challenge=${codeChallenge}&code_challenge_method=S256&show_dialog=true`;
-      window.location.href = authUrl;
-    } catch (error) {
-      console.error('Error generating PKCE challenge:', error);
-      // Fallback a Implicit Flow si PKCE falla
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&show_dialog=true`;
-      window.location.href = authUrl;
-    }
+  const login = () => {
+    // Usar Implicit Flow directamente para evitar problemas de proxy
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}&show_dialog=true`;
+    window.location.href = authUrl;
   };
 
   const logout = () => {
