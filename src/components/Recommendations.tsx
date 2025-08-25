@@ -52,8 +52,7 @@ const Recommendations: React.FC = () => {
   const generateRecommendations = async (artistIds: string[], trackIds: string[]) => {
     setIsGenerating(true);
     try {
-      const seeds = [...artistIds, ...trackIds].slice(0, 5); // Máximo 5 seeds
-      const data = await spotifyService.getRecommendations(seeds, 20);
+      const data = await spotifyService.getRecommendations(artistIds, trackIds, 20);
       setRecommendations(data.tracks as SpotifyTrack[]);
     } catch (error) {
       console.error('Error generating recommendations:', error);
