@@ -1,128 +1,178 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { spotifyService } from '../services/spotifyService';
-import { SpotifyArtist, SpotifyTrack } from '../types/spotify';
+import UserProfile from './UserProfile';
 import TopArtists from './TopArtists';
 import TopTracks from './TopTracks';
 import Recommendations from './Recommendations';
-import UserProfile from './UserProfile';
-import { UserIcon, MicrophoneIcon, MusicalNoteIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
+
+type TabType = 'profile' | 'artists' | 'tracks' | 'recommendations';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
-  const [topArtists, setTopArtists] = useState<SpotifyArtist[]>([]);
-  const [topTracks, setTopTracks] = useState<SpotifyTrack[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [artistsData, tracksData] = await Promise.all([
-          spotifyService.getTopArtists('medium_term', 10),
-          spotifyService.getTopTracks('medium_term', 10)
-        ]);
-        
-        setTopArtists(artistsData.items as SpotifyArtist[]);
-        setTopTracks(tracksData.items as SpotifyTrack[]);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const [activeTab, setActiveTab] = useState<TabType>('profile');
 
   const tabs = [
-    { id: 'profile', name: 'Mi Perfil', icon: UserIcon },
-    { id: 'artists', name: 'Artistas Favoritos', icon: MicrophoneIcon },
-    { id: 'tracks', name: 'Canciones Favoritas', icon: MusicalNoteIcon },
-    { id: 'recommendations', name: 'Recomendaciones', icon: SpeakerWaveIcon },
+    { id: 'profile', label: 'Mi Perfil', icon: '👤' },
+    { id: 'artists', label: 'Artistas Favoritos', icon: '🎤' },
+    { id: 'tracks', label: 'Canciones Favoritas', icon: '🎵' },
+    { id: 'recommendations', label: 'Recomendaciones', icon: '🎧' }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-spotify-dark flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spotify-green mx-auto mb-4"></div>
-          <p className="text-spotify-gray">Cargando tu perfil musical...</p>
-        </div>
-      </div>
-    );
-  }
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return <UserProfile />;
+      case 'artists':
+        return <TopArtists />;
+      case 'tracks':
+        return <TopTracks />;
+      case 'recommendations':
+        return <Recommendations />;
+      default:
+        return <UserProfile />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-spotify-dark">
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#121212',
+      color: '#FFFFFF'
+    }}>
       {/* Header */}
-      <header className="bg-spotify-black border-b border-spotify-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 bg-spotify-green rounded-full flex items-center justify-center">
-                <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                </svg>
-              </div>
-              <h1 className="text-xl font-bold text-white">Mi Perfil de Spotify</h1>
+      <header style={{
+        backgroundColor: '#282828',
+        padding: '20px 0',
+        borderBottom: '1px solid #404040',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              backgroundColor: '#1DB954',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px'
+            }}>
+              🎵
             </div>
-            
-            <div className="flex items-center space-x-4">
-              {user && (
-                <div className="flex items-center space-x-3">
-                  {user.images && user.images[0] && (
-                    <img
-                      src={user.images[0].url}
-                      alt={user.display_name}
-                      className="h-8 w-8 rounded-full"
-                    />
-                  )}
-                  <span className="text-white font-medium">{user.display_name}</span>
-                </div>
-              )}
-              <button
-                onClick={logout}
-                className="bg-spotify-light hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200"
-              >
-                Cerrar Sesión
-              </button>
-            </div>
+            <h1 style={{ 
+              margin: 0, 
+              fontSize: '24px', 
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #1DB954, #1ed760)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              Mi Perfil de Spotify
+            </h1>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ color: '#B3B3B3' }}>
+              Hola, {user?.display_name || 'Usuario'}
+            </span>
+            <button
+              onClick={logout}
+              style={{
+                backgroundColor: '#1DB954',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '25px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                transition: 'all 0.3s ease',
+                fontSize: '14px'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#1ed760';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#1DB954';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              Cerrar Sesión
+            </button>
           </div>
         </div>
       </header>
 
       {/* Navigation Tabs */}
-      <nav className="bg-spotify-black border-b border-spotify-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            {tabs.map((tab) => {
-              const IconComponent = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition duration-200 ${
-                    activeTab === tab.id
-                      ? 'border-spotify-green text-spotify-green'
-                      : 'border-transparent text-spotify-gray hover:text-white hover:border-gray-300'
-                  }`}
-                >
-                  <IconComponent className="inline-block w-5 h-5 mr-2" />
-                  {tab.name}
-                </button>
-              );
-            })}
+      <nav style={{
+        backgroundColor: '#181818',
+        borderBottom: '1px solid #404040',
+        padding: '0'
+      }}>
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 20px'
+        }}>
+          <div style={{
+            display: 'flex',
+            gap: '5px',
+            padding: '10px 0'
+          }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as TabType)}
+                style={{
+                  backgroundColor: activeTab === tab.id ? '#1DB954' : 'transparent',
+                  color: activeTab === tab.id ? '#FFFFFF' : '#B3B3B3',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: '25px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseOver={(e) => {
+                  if (activeTab !== tab.id) {
+                    e.currentTarget.style.backgroundColor = '#282828';
+                    e.currentTarget.style.color = '#FFFFFF';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (activeTab !== tab.id) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#B3B3B3';
+                  }
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'profile' && <UserProfile user={user} />}
-        {activeTab === 'artists' && <TopArtists artists={topArtists} />}
-        {activeTab === 'tracks' && <TopTracks tracks={topTracks} />}
-        {activeTab === 'recommendations' && <Recommendations topArtists={topArtists} topTracks={topTracks} />}
+      <main style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '30px 20px'
+      }}>
+        {renderContent()}
       </main>
     </div>
   );

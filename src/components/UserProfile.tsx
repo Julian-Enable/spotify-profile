@@ -1,169 +1,331 @@
 import React from 'react';
-import { SpotifyUser } from '../types/spotify';
+import { useAuth } from '../contexts/AuthContext';
 
-interface UserProfileProps {
-  user: SpotifyUser | null;
-}
+const UserProfile: React.FC = () => {
+  const { user } = useAuth();
 
-const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
   if (!user) {
     return (
-      <div className="text-center text-spotify-gray">
-        No se pudo cargar el perfil del usuario
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '2px solid #1DB954',
+          borderTop: '2px solid transparent',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px auto'
+        }}></div>
+        <p style={{ color: '#B3B3B3' }}>Cargando perfil...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
       {/* Header del perfil */}
-      <div className="bg-spotify-light rounded-lg p-8">
-        <div className="flex items-center space-x-6">
-          {user.images && user.images[0] ? (
-            <img
-              src={user.images[0].url}
-              alt={user.display_name}
-              className="h-24 w-24 rounded-full object-cover"
-            />
-          ) : (
-            <div className="h-24 w-24 bg-spotify-gray rounded-full flex items-center justify-center">
-              <svg className="h-12 w-12 text-spotify-dark" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-              </svg>
-            </div>
-          )}
-          
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-white mb-2">
+      <div style={{
+        backgroundColor: '#282828',
+        borderRadius: '15px',
+        padding: '30px',
+        marginBottom: '30px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        border: '1px solid #404040'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '25px',
+          marginBottom: '25px'
+        }}>
+          {/* Avatar */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            border: '4px solid #1DB954',
+            boxShadow: '0 4px 15px rgba(29, 185, 84, 0.3)'
+          }}>
+            {user.images && user.images[0] ? (
+              <img
+                src={user.images[0].url}
+                alt={user.display_name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+            ) : (
+              <div style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#1DB954',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '48px',
+                color: '#FFFFFF'
+              }}>
+                👤
+              </div>
+            )}
+          </div>
+
+          {/* Información del usuario */}
+          <div style={{ flex: 1 }}>
+            <h1 style={{
+              fontSize: '32px',
+              fontWeight: 'bold',
+              margin: '0 0 8px 0',
+              color: '#FFFFFF'
+            }}>
               {user.display_name}
             </h1>
-            <p className="text-spotify-gray text-lg mb-4">
+            
+            <p style={{
+              fontSize: '16px',
+              color: '#B3B3B3',
+              margin: '0 0 15px 0'
+            }}>
               {user.email}
             </p>
-            <div className="flex items-center space-x-4 text-sm text-spotify-gray">
-              <span>País: {user.country}</span>
-              <span>•</span>
-              <span>Tipo de cuenta: {user.product}</span>
-            </div>
-          </div>
-          
-          <div className="text-right">
-            <div className="bg-spotify-green text-white px-4 py-2 rounded-full text-sm font-medium">
+
+            {/* Badge de verificación */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: '#1DB954',
+              color: '#FFFFFF',
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}>
+              <span>✓</span>
               Usuario Verificado
             </div>
           </div>
         </div>
+
+        {/* Estadísticas rápidas */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '20px',
+          marginTop: '25px'
+        }}>
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#1DB954',
+              marginBottom: '8px'
+            }}>
+              🎵
+            </div>
+            <div style={{ color: '#FFFFFF', fontWeight: 'bold', marginBottom: '4px' }}>
+              Perfil Activo
+            </div>
+            <div style={{ color: '#B3B3B3', fontSize: '14px' }}>
+              Tu cuenta está conectada y lista para mostrar tus datos
+            </div>
+          </div>
+
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#1DB954',
+              marginBottom: '8px'
+            }}>
+              📊
+            </div>
+            <div style={{ color: '#FFFFFF', fontWeight: 'bold', marginBottom: '4px' }}>
+              Datos Disponibles
+            </div>
+            <div style={{ color: '#B3B3B3', fontSize: '14px' }}>
+              Acceso completo a tu historial de escucha
+            </div>
+          </div>
+
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            textAlign: 'center',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#1DB954',
+              marginBottom: '8px'
+            }}>
+              🎧
+            </div>
+            <div style={{ color: '#FFFFFF', fontWeight: 'bold', marginBottom: '4px' }}>
+              Recomendaciones
+            </div>
+            <div style={{ color: '#B3B3B3', fontSize: '14px' }}>
+              Descubre nueva música basada en tus gustos
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-spotify-light rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-spotify-green mb-2">
-            🎵
-          </div>
-          <h3 className="text-white font-semibold mb-1">Perfil Activo</h3>
-          <p className="text-spotify-gray text-sm">
-            Tu cuenta está conectada y lista para mostrar tus datos
-          </p>
-        </div>
-        
-        <div className="bg-spotify-light rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-spotify-green mb-2">
-            📊
-          </div>
-          <h3 className="text-white font-semibold mb-1">Datos Disponibles</h3>
-          <p className="text-spotify-gray text-sm">
-            Acceso completo a tu historial de escucha
-          </p>
-        </div>
-        
-        <div className="bg-spotify-light rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-spotify-green mb-2">
-            🎧
-          </div>
-          <h3 className="text-white font-semibold mb-1">Recomendaciones</h3>
-          <p className="text-spotify-gray text-sm">
-            Descubre nueva música basada en tus gustos
-          </p>
-        </div>
-      </div>
-
-      {/* Información adicional */}
-      <div className="bg-spotify-light rounded-lg p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">
+      {/* Información detallada */}
+      <div style={{
+        backgroundColor: '#282828',
+        borderRadius: '15px',
+        padding: '30px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        border: '1px solid #404040'
+      }}>
+        <h2 style={{
+          fontSize: '24px',
+          fontWeight: 'bold',
+          margin: '0 0 25px 0',
+          color: '#FFFFFF',
+          borderBottom: '2px solid #1DB954',
+          paddingBottom: '10px'
+        }}>
           Información de la Cuenta
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-spotify-gray text-sm font-medium mb-1">
+        </h2>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '20px'
+        }}>
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              color: '#B3B3B3',
+              fontSize: '14px',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               ID de Usuario
-            </label>
-            <p className="text-white font-mono text-sm bg-spotify-dark px-3 py-2 rounded">
+            </div>
+            <div style={{
+              color: '#FFFFFF',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              backgroundColor: '#000000',
+              padding: '8px 12px',
+              borderRadius: '5px',
+              wordBreak: 'break-all'
+            }}>
               {user.id}
-            </p>
+            </div>
           </div>
-          
-          <div>
-            <label className="block text-spotify-gray text-sm font-medium mb-1">
+
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              color: '#B3B3B3',
+              fontSize: '14px',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              País
+            </div>
+            <div style={{
+              color: '#FFFFFF',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              {user.country || 'No especificado'}
+            </div>
+          </div>
+
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              color: '#B3B3B3',
+              fontSize: '14px',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Tipo de Cuenta
+            </div>
+            <div style={{
+              color: '#FFFFFF',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              {user.product === 'premium' ? 'Premium' : 'Gratuita'}
+            </div>
+          </div>
+
+          <div style={{
+            backgroundColor: '#181818',
+            padding: '20px',
+            borderRadius: '10px',
+            border: '1px solid #404040'
+          }}>
+            <div style={{
+              color: '#B3B3B3',
+              fontSize: '14px',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
               URI de Spotify
-            </label>
-            <p className="text-white font-mono text-sm bg-spotify-dark px-3 py-2 rounded">
+            </div>
+            <div style={{
+              color: '#1DB954',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              backgroundColor: '#000000',
+              padding: '8px 12px',
+              borderRadius: '5px',
+              wordBreak: 'break-all'
+            }}>
               {user.uri}
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-spotify-gray text-sm font-medium mb-1">
-              Tipo de Usuario
-            </label>
-            <p className="text-white capitalize">
-              {user.type}
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-spotify-gray text-sm font-medium mb-1">
-              Producto
-            </label>
-            <p className="text-white capitalize">
-              {user.product}
-            </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Acciones rápidas */}
-      <div className="bg-spotify-light rounded-lg p-6">
-        <h3 className="text-xl font-semibold text-white mb-4">
-          Acciones Rápidas
-        </h3>
-        <div className="flex flex-wrap gap-4">
-          <a
-            href="https://open.spotify.com/user"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-spotify-green hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center space-x-2"
-          >
-            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-            </svg>
-            <span>Abrir Spotify</span>
-          </a>
-          
-          <a
-            href="https://www.spotify.com/account/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-spotify-light hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition duration-200 flex items-center space-x-2"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Configuración</span>
-          </a>
-        </div>
-      </div>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
