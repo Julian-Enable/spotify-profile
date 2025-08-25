@@ -22,12 +22,15 @@ const Recommendations: React.FC = () => {
           spotifyService.getTopTracks('medium_term', 10)
         ]);
         
-        setTopArtists(artistsData.items as SpotifyArtist[]);
-        setTopTracks(tracksData.items as SpotifyTrack[]);
+        const artists = artistsData.items as SpotifyArtist[];
+        const tracks = tracksData.items as SpotifyTrack[];
+        
+        setTopArtists(artists);
+        setTopTracks(tracks);
         
         // Seleccionar automáticamente los primeros 2 artistas y 1 track
-        const autoSelectedArtists = artistsData.items.slice(0, 2).map((artist: SpotifyArtist) => artist.id);
-        const autoSelectedTracks = tracksData.items.slice(0, 1).map((track: SpotifyTrack) => track.id);
+        const autoSelectedArtists = artists.slice(0, 2).map((artist: SpotifyArtist) => artist.id);
+        const autoSelectedTracks = tracks.slice(0, 1).map((track: SpotifyTrack) => track.id);
         
         setSelectedSeeds({
           artists: autoSelectedArtists,
