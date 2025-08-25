@@ -78,6 +78,15 @@ class SpotifyService {
       params.seed_tracks = finalSeedTracks.join(',');
     }
     
+    // Debug logging
+    console.log('Spotify API Debug:', {
+      url: `${SPOTIFY_API_BASE}/recommendations`,
+      params,
+      finalSeedArtists,
+      finalSeedTracks,
+      totalSeeds: finalSeedArtists.length + finalSeedTracks.length
+    });
+    
     const response = await axios.get(`${SPOTIFY_API_BASE}/recommendations`, {
       headers: this.getHeaders(),
       params,
